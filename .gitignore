@@ -201,3 +201,9 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Secrets dir
+.secrets/
+
+# Technical dir with data from EVE Online SDE
+.esi_data/
