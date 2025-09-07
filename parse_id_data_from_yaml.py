@@ -1,7 +1,14 @@
 import os
 from dataclasses import dataclass
 
-from settings import esi_data_dir, logger, unique_names_file, regions_id_filename, constellations_id_filename, solar_system_id_filename
+from settings import (
+    CONSTELLATIONS_ID_FILENAME,
+    ESI_DATA_DIR,
+    REGIONS_ID_FILENAME,
+    SOLAR_SYSTEM_ID_FILENAME,
+    UNIQUE_NAMES_FILE,
+    logger,
+)
 from utils import decode_yaml, write_json
 
 
@@ -13,13 +20,13 @@ class GroupData:
 
 
 regions_data = GroupData(
-    json_file_name=regions_id_filename, group_id=3, parsed_list=[]
+    json_file_name=REGIONS_ID_FILENAME, group_id=3, parsed_list=[]
 )
 constellations_data = GroupData(
-    json_file_name=constellations_id_filename, group_id=4, parsed_list=[]
+    json_file_name=CONSTELLATIONS_ID_FILENAME, group_id=4, parsed_list=[]
 )
 solar_systems_data = GroupData(
-    json_file_name=solar_system_id_filename, group_id=5, parsed_list=[]
+    json_file_name=SOLAR_SYSTEM_ID_FILENAME, group_id=5, parsed_list=[]
 )
 
 
@@ -45,11 +52,11 @@ def parse_obj_structure(parsed_data: list[dict]) -> None:
     logger.info("Dump and write json files.")
     for group in tuple_to_write:
         write_json(
-            os.path.join(esi_data_dir, group.json_file_name), group.parsed_list
+            os.path.join(ESI_DATA_DIR, group.json_file_name), group.parsed_list
         )
     logger.info("End of the parsing.")
 
 
 if __name__ == "__main__":
-    result_data = decode_yaml(os.path.join(esi_data_dir, unique_names_file))
+    result_data = decode_yaml(os.path.join(ESI_DATA_DIR, UNIQUE_NAMES_FILE))
     parse_obj_structure(result_data)
