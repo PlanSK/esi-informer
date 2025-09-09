@@ -8,15 +8,10 @@ from googleapiclient.errors import HttpError
 
 # If modifying these scopes, delete the file token.json.
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
-
-# The ID and range of a sample spreadsheet.
 SAMPLE_SPREADSHEET_ID = os.environ["SPREADSHEET_ID"]
 
 
-def main():
-    """Shows basic usage of the Sheets API.
-    Prints values from a sample spreadsheet.
-    """
+def organize_creds():
     creds = None
     if os.path.exists(".secrets/token.json"):
         creds = Credentials.from_authorized_user_file(
@@ -32,7 +27,11 @@ def main():
             creds = flow.run_local_server(port=37817)
         with open(".secrets/token.json", "w") as token:
             token.write(creds.to_json())
+    return creds
 
+
+def get_range_values(spreadsheet_id: str, range: str):
+    creds = organize_creds()
     try:
         service = build("sheets", "v4", credentials=creds)
 
@@ -40,18 +39,47 @@ def main():
             service.spreadsheets()
             .values()
             .get(
-                spreadsheetId=SAMPLE_SPREADSHEET_ID,
-                range="Cyno Assets Regions!B2:C2",
+                spreadsheetId=spreadsheet_id,
+                range=range,
             )
             .execute()
         )
         rows = result.get("values", [])
-        print(f"{len(rows)} rows retrieved")
-        print(result)
+    except HttpError as error:
+        print(f"An error occurred: {error}")
+        return error
+    else:
+        return rows
+
+
+def update_range_values(spreadsheet_id, range, value_input_option, _values):
+    creds = organize_creds()
+    try:
+        service = build("sheets", "v4", credentials=creds)
+        values = [
+            [
+                # Cell values ...
+            ],
+            # Additional rows ...
+        ]
+        body = {"values": values}
+        result = (
+            service.spreadsheets()
+            .values()
+            .update(
+                spreadsheetId=spreadsheet_id,
+                range=range,
+                valueInputOption=value_input_option,
+                body=body,
+            )
+            .execute()
+        )
+        print(f"{result.get('updatedCells')} cells updated.")
+        return result
     except HttpError as error:
         print(f"An error occurred: {error}")
         return error
 
 
 if __name__ == "__main__":
-    main()
+    print(get_range_values(SAMPLE_SPREADSHEET_ID, "Cyno Assets List!A1:C40"))
